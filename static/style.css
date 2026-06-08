@@ -507,3 +507,80 @@ tbody tr:nth-child(3) {
     cursor: pointer;
 }
 
+.starter-badge {
+    background-color: #10b981; /* Emerald Green */
+    color: white;
+}
+
+.bench-badge {
+    background-color: #94a3b8; /* Muted slate gray */
+    color: white;
+}
+
+/* Modal Overlay */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+
+/* Modal Content Box */
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    padding: 25px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Close Button */
+.close-modal-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+    color: #333;
+}
+
+.modal-divider {
+    border: 0;
+    height: 1px;
+    background-color: #eee;
+    margin: 12px 0 18px 0;
+}
+
+/* Leaderboard Interactive styling */
+#leaderboard-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#leaderboard-table tbody tr:hover {
+    background-color: #e2e8f0 !important;
+}
+
+

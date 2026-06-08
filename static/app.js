@@ -163,9 +163,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = `${prefix}-${index}`;
             const div = document.createElement("div");
             div.className = "checklist-item";
+            const starterBadge = player.is_starter 
+                ? '<span class="badge starter-badge">Starter</span>' 
+                : '<span class="badge bench-badge">Bench</span>';
             div.innerHTML = `
                 <input type="checkbox" id="${id}" value="${player.name}" name="goal_scorers">
-                <label for="${id}">${player.name} <span class="badge position-badge">${player.position}</span></label>
+                <label for="${id}">
+                    <span>${player.name} <span class="badge position-badge">${player.position}</span></span>
+                    ${starterBadge}
+                </label>
             `;
             container.appendChild(div);
         });
@@ -177,8 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = `${prefix}-${index}`;
             const div = document.createElement("div");
             div.className = "goalie-save-row";
+            const starterBadge = goalie.is_starter 
+                ? '<span class="badge starter-badge">Starter</span>' 
+                : '<span class="badge bench-badge">Bench</span>';
             div.innerHTML = `
-                <span>${goalie.name} <span class="badge goalie-badge">${goalie.string}</span></span>
+                <span>
+                    ${goalie.name} <span class="badge goalie-badge">${goalie.string}</span>
+                    ${starterBadge}
+                </span>
                 <input type="number" id="${id}" name="save-${goalie.name}" min="0" value="0" class="saves-input">
             `;
             container.appendChild(div);
@@ -330,6 +342,132 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => console.error("Error loading leaderboard:", err));
     }
+
+    // --- Leaderboard Click & Modal Logic ---
+
+    leaderboardTableBody.addEventListener("click", (e) => {
+        const row = e.target.closest("tr");
+        if (!row) return;
+        
+        // Find LDAP in the second td
+        const ldapCell = row.cells[1];
+        if (ldapCell) {
+            const ldap = ldapCell.textContent.trim();
+            // Don't trigger if it's the "No predictions" placeholder row
+            if (ldap && !ldap.startsWith("No predictions")) {
+                openPredictionModal(ldap);
+            }
+        }
+    });
+
+    function openPredictionModal(ldap) {
+        const modal = document.getElementById("prediction-modal");
+        const modalTitle = document.getElementById("modal-user-title");
+        const modalDetails = document.getElementById("modal-prediction-details");
+        const myLdap = localStorage.getItem("tmeg_ldap") || "";
+        
+        modalTitle.textContent = `Predictions for ${ldap}`;
+        modalDetails.innerHTML = "<p class='text-center'>Loading predictions...</p>";
+        modal.classList.remove("hidden");
+        
+        fetch(`/api/predictions/${ldap}?viewer=${encodeURIComponent(myLdap)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.found) {
+                    modalDetails.innerHTML = "<p class='text-center error-msg'>No predictions found for this user.</p>";
+                    return;
+                }
+                
+                if (data.hidden) {
+                    modalDetails.innerHTML = `
+                        <div class="locked-overlay text-center">
+                            <div class="locked-icon" style="font-size: 3.5rem; margin-bottom: 15px;">🔒</div>
+                            <h3 style="margin-bottom: 10px; color: var(--primary-color)">Predictions Hidden</h3>
+                            <p style="color: #666; max-width: 300px; margin: 0 auto; font-size: 0.9rem;">${data.message}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const preds = data.predictions;
+                
+                // Format goal scorers list
+                const scorersHtml = preds.goal_scorers.length === 0 
+                    ? "<em>No goal scorers predicted.</em>" 
+                    : preds.goal_scorers.map(player => `<span class="badge position-badge" style="margin-bottom: 5px;">${player}</span>`).join(" ");
+                
+                // Format goalie saves list
+                const savesHtml = Object.entries(preds.goalie_saves).map(([goalie, saves]) => `
+                    <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee;">
+                        <span>${goalie}</span>
+                        <strong>${saves} saves</strong>
+                    </li>
+                `).join("");
+
+                let html = `
+                    <div class="modal-section" style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 12px;">Goals Predictions</h4>
+                        <table class="modal-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="background-color: #f8f9fa;">
+                                    <th style="padding: 6px 8px; text-align: left; border-bottom: 1px solid #dee2e6;">Segment</th>
+                                    <th style="padding: 6px 8px; text-align: center; border-bottom: 1px solid #dee2e6; color: var(--primary-color);">MX</th>
+                                    <th style="padding: 6px 8px; text-align: center; border-bottom: 1px solid #dee2e6; color: #495057;">SA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #eee;">First Half</td>
+                                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee; font-weight: bold;">${preds.scores.mexico_1st}</td>
+                                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee; font-weight: bold;">${preds.scores.south_africa_1st}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #eee;">Second Half</td>
+                                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee; font-weight: bold;">${preds.scores.mexico_2nd}</td>
+                                    <td style="padding: 8px; text-align: center; border-bottom: 1px solid #eee; font-weight: bold;">${preds.scores.south_africa_2nd}</td>
+                                </tr>
+                                <tr style="background-color: rgba(245, 196, 0, 0.05);">
+                                    <td style="padding: 8px; font-weight: bold;">Final Score</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 800; color: var(--primary-color);">${preds.scores.mexico_final}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 800; color: #495057;">${preds.scores.south_africa_final}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="modal-section" style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 12px;">Goal Scorers predicted</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            ${scorersHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="modal-section">
+                        <h4 style="color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 12px;">Goalie Saves predicted</h4>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; font-size: 0.9rem;">
+                            ${savesHtml}
+                        </ul>
+                    </div>
+                `;
+                modalDetails.innerHTML = html;
+            })
+            .catch(err => {
+                console.error("Error fetching modal predictions:", err);
+                modalDetails.innerHTML = "<p class='text-center error-msg'>An error occurred while loading predictions.</p>";
+            });
+    }
+
+    // Close Modal Event Listeners
+    document.querySelector(".close-modal-btn").addEventListener("click", () => {
+        document.getElementById("prediction-modal").classList.add("hidden");
+    });
+    
+    window.addEventListener("click", (e) => {
+        const modal = document.getElementById("prediction-modal");
+        if (e.target === modal) {
+            modal.classList.add("hidden");
+        }
+    });
 
     // --- App Init ---
     initAuth();

@@ -13,54 +13,54 @@ DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 PREDICTIONS_FILE = os.path.join(DATA_DIR, "predictions.json")
 GAME_STATE_FILE = os.path.join(DATA_DIR, "game_state.json")
 
-# Rosters Definition with Positions & Strings
+# Rosters Definition with Positions, Strings & Starters
 ROSTERS = {
     "Mexico": {
         "Goalies": [
-            {"name": "Guillermo Ochoa", "string": "1st String"},
-            {"name": "Carlos Acevedo", "string": "2nd String"},
-            {"name": "Raúl Rangel", "string": "3rd String"}
+            {"name": "Guillermo Ochoa", "string": "1st String", "is_starter": True},
+            {"name": "Carlos Acevedo", "string": "2nd String", "is_starter": False},
+            {"name": "Raúl Rangel", "string": "3rd String", "is_starter": False}
         ],
         "Outfield": [
-            {"name": "Jorge Sánchez", "position": "Defender"},
-            {"name": "César Montes", "position": "Defender"},
-            {"name": "Edson Álvarez", "position": "Midfielder"},
-            {"name": "Johan Vásquez", "position": "Defender"},
-            {"name": "Gerardo Arteaga", "position": "Defender"},
-            {"name": "Jesús Gallardo", "position": "Defender/Midfielder"},
-            {"name": "Israel Reyes", "position": "Defender"},
-            {"name": "Luis Romo", "position": "Midfielder"},
-            {"name": "Álvaro Fidalgo", "position": "Midfielder"},
-            {"name": "Orbelín Pineda", "position": "Midfielder"},
-            {"name": "Luis Chávez", "position": "Midfielder"},
-            {"name": "Erick Sánchez", "position": "Midfielder"},
-            {"name": "Raúl Jiménez", "position": "Forward"},
-            {"name": "Santiago Giménez", "position": "Forward"},
-            {"name": "Alexis Vega", "position": "Forward"},
-            {"name": "César Huerta", "position": "Forward"},
-            {"name": "Julián Quiñones", "position": "Forward"}
+            {"name": "Jorge Sánchez", "position": "Defender", "is_starter": True},
+            {"name": "César Montes", "position": "Defender", "is_starter": True},
+            {"name": "Edson Álvarez", "position": "Midfielder", "is_starter": True},
+            {"name": "Johan Vásquez", "position": "Defender", "is_starter": True},
+            {"name": "Gerardo Arteaga", "position": "Defender", "is_starter": True},
+            {"name": "Jesús Gallardo", "position": "Defender/Midfielder", "is_starter": False},
+            {"name": "Israel Reyes", "position": "Defender", "is_starter": False},
+            {"name": "Luis Romo", "position": "Midfielder", "is_starter": True},
+            {"name": "Álvaro Fidalgo", "position": "Midfielder", "is_starter": False},
+            {"name": "Orbelín Pineda", "position": "Midfielder", "is_starter": False},
+            {"name": "Luis Chávez", "position": "Midfielder", "is_starter": True},
+            {"name": "Erick Sánchez", "position": "Midfielder", "is_starter": False},
+            {"name": "Raúl Jiménez", "position": "Forward", "is_starter": False},
+            {"name": "Santiago Giménez", "position": "Forward", "is_starter": True},
+            {"name": "Alexis Vega", "position": "Forward", "is_starter": True},
+            {"name": "César Huerta", "position": "Forward", "is_starter": False},
+            {"name": "Julián Quiñones", "position": "Forward", "is_starter": True}
         ]
     },
     "South Africa": {
         "Goalies": [
-            {"name": "Ronwen Williams", "string": "1st String"},
-            {"name": "Sipho Chaine", "string": "2nd String"},
-            {"name": "Ricardo Goss", "string": "3rd String"}
+            {"name": "Ronwen Williams", "string": "1st String", "is_starter": True},
+            {"name": "Sipho Chaine", "string": "2nd String", "is_starter": False},
+            {"name": "Ricardo Goss", "string": "3rd String", "is_starter": False}
         ],
         "Outfield": [
-            {"name": "Thabang Matuludi", "position": "Defender"},
-            {"name": "Khulumani Ndamane", "position": "Defender"},
-            {"name": "Aubrey Modiba", "position": "Midfielder/Defender"},
-            {"name": "Nkosinathi Sibisi", "position": "Defender"},
-            {"name": "Khuliso Mudau", "position": "Defender"},
-            {"name": "Teboho Mokoena", "position": "Midfielder"},
-            {"name": "Themba Zwane", "position": "Midfielder"},
-            {"name": "Sphephelo Sithole", "position": "Midfielder"},
-            {"name": "Lyle Foster", "position": "Forward"},
-            {"name": "Iqraam Rayners", "position": "Forward"},
-            {"name": "Evidence Makgopa", "position": "Forward"},
-            {"name": "Oswin Appollis", "position": "Midfielder/Forward"},
-            {"name": "Tshepang Moremi", "position": "Forward/Midfielder"}
+            {"name": "Thabang Matuludi", "position": "Defender", "is_starter": True},
+            {"name": "Khulumani Ndamane", "position": "Defender", "is_starter": False},
+            {"name": "Aubrey Modiba", "position": "Midfielder/Defender", "is_starter": True},
+            {"name": "Nkosinathi Sibisi", "position": "Defender", "is_starter": True},
+            {"name": "Khuliso Mudau", "position": "Defender", "is_starter": True},
+            {"name": "Teboho Mokoena", "position": "Midfielder", "is_starter": True},
+            {"name": "Themba Zwane", "position": "Midfielder", "is_starter": True},
+            {"name": "Sphephelo Sithole", "position": "Midfielder", "is_starter": True},
+            {"name": "Lyle Foster", "position": "Forward", "is_starter": True},
+            {"name": "Iqraam Rayners", "position": "Forward", "is_starter": True},
+            {"name": "Evidence Makgopa", "position": "Forward", "is_starter": True},
+            {"name": "Oswin Appollis", "position": "Midfielder/Forward", "is_starter": False},
+            {"name": "Tshepang Moremi", "position": "Forward/Midfielder", "is_starter": False}
         ]
     }
 }
@@ -348,11 +348,34 @@ class GameRequestHandler(BaseHTTPRequestHandler):
 
         elif path.startswith("/api/predictions/"):
             ldap = path.split("/")[-1].strip().lower()
+            viewer = query.get("viewer", [None])[0]
+            if viewer:
+                viewer = viewer.strip().lower()
+
+            # Security Rules:
+            # 1. You can ALWAYS view your own predictions.
+            # 2. You can view others' predictions ONLY after the lock time (kick-off).
+            now = datetime.now(timezone.utc)
+            is_own_prediction = (viewer == ldap)
+            is_after_lock = (now > LOCK_TIME)
+
+            if not is_own_prediction and not is_after_lock:
+                self.send_json_response({
+                    "found": True,
+                    "hidden": True,
+                    "message": "Predictions are hidden until lock time (June 11, 3:00 PM EDT) to ensure a fair game!"
+                })
+                return
+
             user_pred = get_user_prediction(ldap)
             if not user_pred:
                 self.send_json_response({"found": False})
             else:
-                self.send_json_response({"found": True, "predictions": user_pred})
+                self.send_json_response({
+                    "found": True,
+                    "hidden": False,
+                    "predictions": user_pred
+                })
 
         else:
             self.send_error_response(404, "Not Found")

@@ -60,9 +60,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = `${prefix}-${index}`;
             const div = document.createElement("div");
             div.className = "checklist-item";
+            const starterBadge = player.is_starter 
+                ? '<span class="badge starter-badge">Starter</span>' 
+                : '<span class="badge bench-badge">Bench</span>';
             div.innerHTML = `
                 <input type="checkbox" id="${id}" value="${player.name}" name="actual_goal_scorers">
-                <label for="${id}">${player.name} <span class="badge position-badge">${player.position}</span></label>
+                <label for="${id}">
+                    <span>${player.name} <span class="badge position-badge">${player.position}</span></span>
+                    ${starterBadge}
+                </label>
             `;
             container.appendChild(div);
         });
@@ -74,8 +80,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = `${prefix}-${index}`;
             const div = document.createElement("div");
             div.className = "goalie-save-row";
+            const starterBadge = goalie.is_starter 
+                ? '<span class="badge starter-badge">Starter</span>' 
+                : '<span class="badge bench-badge">Bench</span>';
             div.innerHTML = `
-                <span>${goalie.name} <span class="badge goalie-badge">${goalie.string}</span></span>
+                <span>
+                    ${goalie.name} <span class="badge goalie-badge">${goalie.string}</span>
+                    ${starterBadge}
+                </span>
                 <input type="number" id="${id}" name="actual-save-${goalie.name}" min="0" value="0" class="actual-saves-input">
             `;
             container.appendChild(div);
