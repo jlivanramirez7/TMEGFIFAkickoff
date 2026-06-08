@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMEG FIFA 2026 WATCH PARTY</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>TMEG FIFA 2026 WATCH PARTY</h1>
+        <div id="match-info">Mexico vs. South Africa - 2026 World Cup Kick-off</div>
+    </header>
+
+    <main class="container">
+        <!-- Left Side: Interactive Area (Login / Predictions) -->
+        <section class="interactive-panel">
+            
+            <!-- Login View -->
+            <div id="login-view" class="card">
+                <h2>Welcome!</h2>
+                <p>Enter your LDAP to join the prediction game.</p>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="ldap-input">LDAP Username:</label>
+                        <input type="text" id="ldap-input" placeholder="e.g., ivanramirez" required autocomplete="username">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+
+            <!-- Prediction Form View (hidden by default) -->
+            <div id="prediction-view" class="card hidden">
+                <div class="user-header">
+                    <span>Logged in as: <strong id="user-ldap"></strong></span>
+                    <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
+                </div>
+
+                <!-- Countdown Timer -->
+                <div id="timer-box" class="timer-box">
+                    <div class="timer-label">Time Remaining Until Lock:</div>
+                    <div id="countdown" class="countdown">Calculating...</div>
+                </div>
+
+                <form id="prediction-form">
+                    <!-- Scores per Half -->
+                    <fieldset>
+                        <legend>Score Predictions per Half</legend>
+                        <div class="halves-grid">
+                            <div class="half-box">
+                                <h3>First Half</h3>
+                                <div class="score-input-group">
+                                    <label for="pred-mx-1st">Mexico:</label>
+                                    <input type="number" id="pred-mx-1st" name="mexico_1st" min="0" required value="0">
+                                </div>
+                                <div class="score-input-group">
+                                    <label for="pred-sa-1st">South Africa:</label>
+                                    <input type="number" id="pred-sa-1st" name="south_africa_1st" min="0" required value="0">
+                                </div>
+                            </div>
+                            <div class="half-box">
+                                <h3>Second Half</h3>
+                                <div class="score-input-group">
+                                    <label for="pred-mx-2nd">Mexico:</label>
+                                    <input type="number" id="pred-mx-2nd" name="mexico_2nd" min="0" required value="0">
+                                </div>
+                                <div class="score-input-group">
+                                    <label for="pred-sa-2nd">South Africa:</label>
+                                    <input type="number" id="pred-sa-2nd" name="south_africa_2nd" min="0" required value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Goal Scorers -->
+                    <fieldset>
+                        <legend>Goal Scorers</legend>
+                        <p class="field-hint">Select players you think will score during the match.</p>
+                        <div class="rosters-grid">
+                            <div class="team-roster-section">
+                                <h3>Mexico</h3>
+                                <div id="mexico-scorers-list" class="scorers-list checklist">
+                                    <!-- Populated dynamically -->
+                                    Loading...
+                                </div>
+                            </div>
+                            <div class="team-roster-section">
+                                <h3>South Africa</h3>
+                                <div id="sa-scorers-list" class="scorers-list checklist">
+                                    <!-- Populated dynamically -->
+                                    Loading...
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Goalie Saves -->
+                    <fieldset>
+                        <legend>Goalie Saves</legend>
+                        <p class="field-hint">Predict how many saves each goalie will make (if they play).</p>
+                        <div class="rosters-grid">
+                            <div class="team-roster-section">
+                                <h3>Mexico Goalies</h3>
+                                <div id="mexico-goalies-list" class="goalies-saves-inputs">
+                                    <!-- Populated dynamically -->
+                                    Loading...
+                                </div>
+                            </div>
+                            <div class="team-roster-section">
+                                <h3>South Africa Goalies</h3>
+                                <div id="sa-goalies-list" class="goalies-saves-inputs">
+                                    <!-- Populated dynamically -->
+                                    Loading...
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div id="form-error" class="error-msg hidden"></div>
+                    <div id="form-success" class="success-msg hidden"></div>
+
+                    <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Submit / Update Predictions</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Right Side: Leaderboard Panel (Always Visible) -->
+        <section class="leaderboard-panel card">
+            <h2>Leaderboard</h2>
+            <div class="table-container">
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Rank</th>
+                            <th style="width: 55%">LDAP</th>
+                            <th style="width: 25%">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Populated dynamically -->
+                        <tr>
+                            <td colspan="3" class="text-center">Loading leaderboard...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Prediction Lock Time: Thursday, June 11, 2026, at 3:00 PM EDT</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

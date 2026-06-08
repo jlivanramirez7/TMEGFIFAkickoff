@@ -1,0 +1,337 @@
+document.addEventListener("DOMContentLoaded", () => {
+    // DOM Elements
+    const loginView = document.getElementById("login-view");
+    const predictionView = document.getElementById("prediction-view");
+    const loginForm = document.getElementById("login-form");
+    const ldapInput = document.getElementById("ldap-input");
+    const userLdapDisplay = document.getElementById("user-ldap");
+    const logoutBtn = document.getElementById("logout-btn");
+    
+    const predictionForm = document.getElementById("prediction-form");
+    const countdownEl = document.getElementById("countdown");
+    const timerBox = document.getElementById("timer-box");
+    const submitBtn = document.getElementById("submit-btn");
+    const formError = document.getElementById("form-error");
+    const formSuccess = document.getElementById("form-success");
+    
+    const leaderboardTableBody = document.querySelector("#leaderboard-table tbody");
+
+    // Dynamic Lists Containers
+    const mxScorersList = document.getElementById("mexico-scorers-list");
+    const saScorersList = document.getElementById("sa-scorers-list");
+    const mxGoaliesList = document.getElementById("mexico-goalies-list");
+    const saGoaliesList = document.getElementById("sa-goalies-list");
+
+    let isLocked = false;
+    let timerInterval = null;
+    let leaderboardInterval = null;
+
+    // --- Authentication Flow ---
+    
+    function initAuth() {
+        const storedLdap = localStorage.getItem("tmeg_ldap");
+        if (storedLdap) {
+            login(storedLdap);
+        } else {
+            showLoginView();
+        }
+    }
+
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const ldap = ldapInput.value.trim().toLowerCase();
+        if (ldap) {
+            localStorage.setItem("tmeg_ldap", ldap);
+            login(ldap);
+        }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("tmeg_ldap");
+        showLoginView();
+        predictionForm.reset();
+        // Clear all dynamically checked items
+        document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.goalie-save-row input[type="number"]').forEach(input => input.value = 0);
+    });
+
+    function login(ldap) {
+        userLdapDisplay.textContent = ldap;
+        loginView.classList.add("hidden");
+        predictionView.classList.remove("hidden");
+        
+        // Load app data
+        loadRosters().then(() => {
+            loadUserPredictions(ldap);
+        });
+        
+        // Start lock status monitoring if not already running
+        startLockStatusCheck();
+    }
+
+    function showLoginView() {
+        loginView.classList.remove("hidden");
+        predictionView.classList.add("hidden");
+    }
+
+    // --- Lock Status & Countdown Timer ---
+
+    function startLockStatusCheck() {
+        if (timerInterval) clearInterval(timerInterval);
+        
+        const checkStatus = () => {
+            fetch("/api/lock-status")
+                .then(res => res.json())
+                .then(data => {
+                    isLocked = data.locked;
+                    if (isLocked) {
+                        countdownEl.textContent = "PREDICTIONS LOCKED!";
+                        countdownEl.classList.add("locked-msg");
+                        timerBox.style.borderLeftColor = "#dc3545";
+                        disablePredictionForm();
+                        clearInterval(timerInterval);
+                    } else {
+                        updateCountdown(data.time_left);
+                    }
+                })
+                .catch(err => console.error("Error fetching lock status:", err));
+        };
+        
+        checkStatus();
+        // Poll lock status every 10 seconds, but we count down locally
+        timerInterval = setInterval(checkStatus, 10000);
+    }
+
+    function updateCountdown(secondsLeft) {
+        if (secondsLeft <= 0) {
+            countdownEl.textContent = "PREDICTIONS LOCKED!";
+            countdownEl.classList.add("locked-msg");
+            disablePredictionForm();
+            return;
+        }
+        
+        let localSeconds = secondsLeft;
+        
+        // Local second-by-second countdown to keep it smooth
+        const interval = setInterval(() => {
+            if (localSeconds <= 0 || isLocked) {
+                clearInterval(interval);
+                return;
+            }
+            
+            const days = Math.floor(localSeconds / (3600 * 24));
+            const hours = Math.floor((localSeconds % (3600 * 24)) / 3600);
+            const minutes = Math.floor((localSeconds % 3600) / 60);
+            const secs = Math.floor(localSeconds % 60);
+            
+            countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${secs}s`;
+            localSeconds--;
+        }, 1000);
+    }
+
+    function disablePredictionForm() {
+        // Disable all inputs in the form
+        const inputs = predictionForm.querySelectorAll("input, button[type='submit']");
+        inputs.forEach(input => {
+            input.disabled = true;
+        });
+        submitBtn.textContent = "Predictions Locked";
+        submitBtn.classList.remove("btn-primary");
+        submitBtn.classList.add("btn-secondary");
+    }
+
+    // --- Load Rosters & Populate Form ---
+
+    async function loadRosters() {
+        try {
+            const res = await fetch("/api/rosters");
+            const rosters = await res.json();
+            
+            buildScorersList(rosters.Mexico.Outfield, mxScorersList, "mx_scorer");
+            buildScorersList(rosters["South Africa"].Outfield, saScorersList, "sa_scorer");
+            
+            buildGoaliesList(rosters.Mexico.Goalies, mxGoaliesList, "mx_goalie");
+            buildGoaliesList(rosters["South Africa"].Goalies, saGoaliesList, "sa_goalie");
+        } catch (err) {
+            console.error("Failed to load rosters:", err);
+        }
+    }
+
+    function buildScorersList(players, container, prefix) {
+        container.innerHTML = "";
+        players.forEach((player, index) => {
+            const id = `${prefix}-${index}`;
+            const div = document.createElement("div");
+            div.className = "checklist-item";
+            div.innerHTML = `
+                <input type="checkbox" id="${id}" value="${player}" name="goal_scorers">
+                <label for="${id}">${player}</label>
+            `;
+            // Make label click behave well
+            container.appendChild(div);
+        });
+    }
+
+    function buildGoaliesList(goalies, container, prefix) {
+        container.innerHTML = "";
+        goalies.forEach((goalie, index) => {
+            const id = `${prefix}-${index}`;
+            const div = document.createElement("div");
+            div.className = "goalie-save-row";
+            div.innerHTML = `
+                <span>${goalie}</span>
+                <input type="number" id="${id}" name="save-${goalie}" min="0" value="0" class="saves-input">
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // --- Fetch & Fill User Predictions ---
+
+    function loadUserPredictions(ldap) {
+        fetch(`/api/predictions/${ldap}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.found) {
+                    const preds = data.predictions;
+                    
+                    // 1. Scores
+                    if (preds.scores) {
+                        document.getElementById("pred-mx-1st").value = preds.scores.mexico_1st || 0;
+                        document.getElementById("pred-sa-1st").value = preds.scores.south_africa_1st || 0;
+                        document.getElementById("pred-mx-2nd").value = preds.scores.mexico_2nd || 0;
+                        document.getElementById("pred-sa-2nd").value = preds.scores.south_africa_2nd || 0;
+                    }
+                    
+                    // 2. Goal Scorers
+                    if (preds.goal_scorers) {
+                        preds.goal_scorers.forEach(player => {
+                            const checkbox = document.querySelector(`input[value="${player}"][name="goal_scorers"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                    
+                    // 3. Goalie Saves
+                    if (preds.goalie_saves) {
+                        Object.entries(preds.goalie_saves).forEach(([goalie, saves]) => {
+                            const input = document.querySelector(`input[name="save-${goalie}"]`);
+                            if (input) input.value = saves;
+                        });
+                    }
+                }
+            })
+            .catch(err => console.error("Error loading user predictions:", err));
+    }
+
+    // --- Submit Predictions ---
+
+    predictionForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        
+        if (isLocked) {
+            alert("Predictions are locked. You cannot submit now.");
+            return;
+        }
+
+        const ldap = localStorage.getItem("tmeg_ldap");
+        if (!ldap) return;
+
+        // Gather Scores
+        const scores = {
+            mexico_1st: parseInt(document.getElementById("pred-mx-1st").value) || 0,
+            south_africa_1st: parseInt(document.getElementById("pred-sa-1st").value) || 0,
+            mexico_2nd: parseInt(document.getElementById("pred-mx-2nd").value) || 0,
+            south_africa_2nd: parseInt(document.getElementById("pred-sa-2nd").value) || 0
+        };
+
+        // Gather Scorers
+        const goalScorers = [];
+        document.querySelectorAll('input[name="goal_scorers"]:checked').forEach(cb => {
+            goalScorers.push(cb.value);
+        });
+
+        // Gather Goalie Saves
+        const goalieSaves = {};
+        document.querySelectorAll('.saves-input').forEach(input => {
+            const goalieName = input.name.replace("save-", "");
+            goalieSaves[goalieName] = parseInt(input.value) || 0;
+        });
+
+        const payload = {
+            ldap: ldap,
+            predictions: {
+                scores: scores,
+                goal_scorers: goalScorers,
+                goalie_saves: goalieSaves
+            }
+        };
+
+        formError.classList.add("hidden");
+        formSuccess.classList.add("hidden");
+
+        fetch("/api/predictions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                formSuccess.textContent = data.message;
+                formSuccess.classList.remove("hidden");
+                // Refresh leaderboard immediately to account for new participant
+                updateLeaderboard();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                formError.textContent = data.message;
+                formError.classList.remove("hidden");
+            }
+        })
+        .catch(err => {
+            console.error("Error submitting predictions:", err);
+            formError.textContent = "An error occurred while saving your predictions. Please try again.";
+            formError.classList.remove("hidden");
+        });
+    });
+
+    // --- Leaderboard Sync ---
+
+    function updateLeaderboard() {
+        fetch("/api/leaderboard")
+            .then(res => res.json())
+            .then(data => {
+                leaderboardTableBody.innerHTML = "";
+                if (data.length === 0) {
+                    leaderboardTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="text-center">No predictions submitted yet. Be the first!</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                data.forEach(entry => {
+                    const row = document.createElement("tr");
+                    // Highlight logged in user
+                    const currentLdap = localStorage.getItem("tmeg_ldap");
+                    if (entry.ldap === currentLdap) {
+                        row.style.fontWeight = "bold";
+                        row.style.borderLeft = "4px solid var(--primary-color)";
+                    }
+                    row.innerHTML = `
+                        <td>${entry.rank}</td>
+                        <td>${entry.ldap}</td>
+                        <td><strong>${entry.score}</strong></td>
+                    `;
+                    leaderboardTableBody.appendChild(row);
+                });
+            })
+            .catch(err => console.error("Error loading leaderboard:", err));
+    }
+
+    // --- App Init ---
+    initAuth();
+    updateLeaderboard();
+    
+    // Poll Leaderboard every 15 seconds
+    leaderboardInterval = setInterval(updateLeaderboard, 15000);
+});

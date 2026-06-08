@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console - TMEG FIFA 2026</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1>TMEG FIFA 2026 Admin Console</h1>
+        <div id="match-info">Live Match Control: Mexico vs. South Africa</div>
+        <a href="/" class="btn btn-secondary btn-sm">Go to Main Site</a>
+    </header>
+
+    <main class="container single-column">
+        <div class="card">
+            <h2>Input Actual Live Game Data</h2>
+            <p class="admin-notice">Updating this form will recalculate all user scores and update the leaderboard in real-time.</p>
+            
+            <form id="admin-form">
+                <!-- Scores per Half -->
+                <fieldset>
+                    <legend>Actual Scores per Half</legend>
+                    <div class="halves-grid">
+                        <div class="half-box">
+                            <h3>First Half</h3>
+                            <div class="score-input-group">
+                                <label for="actual-mx-1st">Mexico:</label>
+                                <input type="number" id="actual-mx-1st" name="mexico_1st" min="0" required value="0">
+                            </div>
+                            <div class="score-input-group">
+                                <label for="actual-sa-1st">South Africa:</label>
+                                <input type="number" id="actual-sa-1st" name="south_africa_1st" min="0" required value="0">
+                            </div>
+                        </div>
+                        <div class="half-box">
+                            <h3>Second Half</h3>
+                            <div class="score-input-group">
+                                <label for="actual-mx-2nd">Mexico:</label>
+                                <input type="number" id="actual-mx-2nd" name="mexico_2nd" min="0" required value="0">
+                            </div>
+                            <div class="score-input-group">
+                                <label for="actual-sa-2nd">South Africa:</label>
+                                <input type="number" id="actual-sa-2nd" name="south_africa_2nd" min="0" required value="0">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Goal Scorers -->
+                <fieldset>
+                    <legend>Actual Goal Scorers</legend>
+                    <p class="field-hint">Check all players who have scored a goal in the match.</p>
+                    <div class="rosters-grid">
+                        <div class="team-roster-section">
+                            <h3>Mexico</h3>
+                            <div id="mexico-scorers-list" class="scorers-list checklist">
+                                Loading...
+                            </div>
+                        </div>
+                        <div class="team-roster-section">
+                            <h3>South Africa</h3>
+                            <div id="sa-scorers-list" class="scorers-list checklist">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Goalie Saves -->
+                <fieldset>
+                    <legend>Actual Goalie Saves</legend>
+                    <p class="field-hint">Input the actual number of saves made by each goalie.</p>
+                    <div class="rosters-grid">
+                        <div class="team-roster-section">
+                            <h3>Mexico Goalies</h3>
+                            <div id="mexico-goalies-list" class="goalies-saves-inputs">
+                                Loading...
+                            </div>
+                        </div>
+                        <div class="team-roster-section">
+                            <h3>South Africa Goalies</h3>
+                            <div id="sa-goalies-list" class="goalies-saves-inputs">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div id="admin-error" class="error-msg hidden"></div>
+                <div id="admin-success" class="success-msg hidden"></div>
+
+                <button type="submit" id="update-btn" class="btn btn-primary btn-block">Update Game Data</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>Admin Control Panel</p>
+    </footer>
+
+    <script src="/static/admin.js"></script>
+</body>
+</html>

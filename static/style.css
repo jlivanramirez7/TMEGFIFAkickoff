@@ -1,0 +1,438 @@
+/* Resets & Variables */
+:root {
+    --primary-color: #006341; /* Mexico Green */
+    --secondary-color: #F5C400; /* South Africa Gold */
+    --dark-color: #1a1a1a;
+    --light-color: #f8f9fa;
+    --border-color: #dee2e6;
+    --text-color: #333;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--text-color);
+    background-color: var(--light-color);
+    line-height: 1.6;
+    padding-bottom: 60px;
+}
+
+/* Header Styles */
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 4px solid var(--secondary-color);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+#match-info {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.admin-header {
+    background-color: #343a40;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+}
+
+.admin-header h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0;
+}
+
+/* Container & Layout */
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 30px;
+}
+
+.single-column {
+    grid-template-columns: 1fr;
+    max-width: 800px;
+}
+
+@media (max-width: 992px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card Styles */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    margin-bottom: 25px;
+}
+
+.card h2 {
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+}
+
+/* Form Controls */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: none;
+    transition: background-color 0.2s, transform 0.1s;
+    text-decoration: none;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #004d32;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
+
+/* User Header in Prediction View */
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e9ecef;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+/* Timer Box */
+.timer-box {
+    background-color: var(--dark-color);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    border-left: 5px solid var(--secondary-color);
+}
+
+.timer-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    color: #aaa;
+}
+
+.countdown {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-mono: monospace;
+    color: var(--secondary-color);
+}
+
+.locked-msg {
+    color: var(--error-color) !important;
+}
+
+/* Fieldsets & Grids */
+fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+legend {
+    font-weight: 700;
+    padding: 0 10px;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.field-hint {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.halves-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.half-box {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.half-box h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 5px;
+}
+
+.score-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.score-input-group label {
+    width: 100px;
+    margin-bottom: 0;
+}
+
+.score-input-group input {
+    width: 70px;
+    text-align: center;
+}
+
+/* Rosters & Lists */
+.rosters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .halves-grid, .rosters-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.team-roster-section h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.checklist {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 4px;
+    border-bottom: 1px solid #f1f3f5;
+    cursor: pointer;
+}
+
+.checklist-item:last-child {
+    border-bottom: none;
+}
+
+.checklist-item input {
+    margin-right: 10px;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.goalies-saves-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.goalie-save-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f1f3f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.goalie-save-row span {
+    font-weight: 500;
+}
+
+.goalie-save-row input {
+    width: 65px;
+    text-align: center;
+}
+
+/* Leaderboard */
+.leaderboard-panel h2 {
+    border-bottom: 2px solid var(--secondary-color);
+    color: #212529;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: #f1f3f5;
+    font-weight: 700;
+    color: #495057;
+}
+
+tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+tbody tr:nth-child(1) {
+    background-color: rgba(245, 196, 0, 0.15); /* Gold tint for 1st place */
+}
+tbody tr:nth-child(2) {
+    background-color: rgba(206, 206, 206, 0.1); /* Silver tint */
+}
+tbody tr:nth-child(3) {
+    background-color: rgba(205, 127, 50, 0.08); /* Bronze tint */
+}
+
+/* Alerts / Notifications */
+.error-msg, .success-msg {
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.error-msg {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.success-msg {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Admin Styles */
+.admin-notice {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 5px solid #ffeeba;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+/* Footer */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--dark-color);
+    color: #bbb;
+    text-align: center;
+    padding: 12px;
+    font-size: 0.85rem;
+    border-top: 2px solid var(--secondary-color);
+    z-index: 1000;
+}
