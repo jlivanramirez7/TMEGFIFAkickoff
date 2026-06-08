@@ -83,12 +83,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function populateGameState(state) {
+        // 0. Status & Finalization
+        if (state.status) {
+            document.getElementById("admin-status").value = state.status;
+        }
+        document.getElementById("admin-1st-final").checked = !!state.first_half_final;
+        document.getElementById("admin-2nd-final").checked = !!state.second_half_final;
+        document.getElementById("admin-final-final").checked = !!state.final_score_final;
+        document.getElementById("admin-saves-final").checked = !!state.saves_final;
+
         // 1. Scores
         if (state.scores) {
             document.getElementById("actual-mx-1st").value = state.scores.mexico_1st || 0;
             document.getElementById("actual-sa-1st").value = state.scores.south_africa_1st || 0;
             document.getElementById("actual-mx-2nd").value = state.scores.mexico_2nd || 0;
             document.getElementById("actual-sa-2nd").value = state.scores.south_africa_2nd || 0;
+            document.getElementById("actual-mx-final").value = state.scores.mexico_final || 0;
+            document.getElementById("actual-sa-final").value = state.scores.south_africa_final || 0;
         }
 
         // 2. Goal Scorers
@@ -121,7 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
             mexico_1st: parseInt(document.getElementById("actual-mx-1st").value) || 0,
             south_africa_1st: parseInt(document.getElementById("actual-sa-1st").value) || 0,
             mexico_2nd: parseInt(document.getElementById("actual-mx-2nd").value) || 0,
-            south_africa_2nd: parseInt(document.getElementById("actual-sa-2nd").value) || 0
+            south_africa_2nd: parseInt(document.getElementById("actual-sa-2nd").value) || 0,
+            mexico_final: parseInt(document.getElementById("actual-mx-final").value) || 0,
+            south_africa_final: parseInt(document.getElementById("actual-sa-final").value) || 0
         };
 
         // Gather Scorers
@@ -137,9 +150,20 @@ document.addEventListener("DOMContentLoaded", () => {
             goalieSaves[goalieName] = parseInt(input.value) || 0;
         });
 
+        const status = document.getElementById("admin-status").value;
+        const firstHalfFinal = document.getElementById("admin-1st-final").checked;
+        const secondHalfFinal = document.getElementById("admin-2nd-final").checked;
+        const finalScoreFinal = document.getElementById("admin-final-final").checked;
+        const savesFinal = document.getElementById("admin-saves-final").checked;
+
         const payload = {
             password: password,
             game_state: {
+                status: status,
+                first_half_final: firstHalfFinal,
+                second_half_final: secondHalfFinal,
+                final_score_final: finalScoreFinal,
+                saves_final: savesFinal,
                 scores: scores,
                 goal_scorers: goalScorers,
                 goalie_saves: goalieSaves

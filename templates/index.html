@@ -21,7 +21,8 @@
                 <h2>How to Win & Point Rules</h2>
                 <p class="rules-intro">Predict the events of Mexico vs. South Africa to climb the leaderboard! Points are distributed as follows:</p>
                 <ul class="rules-list">
-                    <li>🎯 <strong>Scores per Half:</strong> <strong>+10 points</strong> for each correctly predicted half-time score segment (Mexico 1st half, South Africa 1st half, Mexico 2nd half, South Africa 2nd half). <em>(Up to 40 pts)</em></li>
+                    <li>🎯 <strong>Goals Earned per Half:</strong> <strong>+10 points</strong> for each correctly predicted half score segment (Mexico 1st half, South Africa 1st half, Mexico 2nd half, South Africa 2nd half). <em>(Up to 40 pts)</em></li>
+                    <li>🏆 <strong>Final Score:</strong> <strong>+10 points</strong> for each correctly predicted team final score (Mexico Final, South Africa Final). <em>(Up to 20 pts)</em></li>
                     <li>⚽ <strong>Goal Scorers:</strong> <strong>+20 points</strong> for each player you correctly predict will score a goal. No penalty for wrong guesses.</li>
                     <li>🛡️ <strong>Goalie Saves:</strong> <strong>+5 points</strong> for each goalkeeper whose exact number of saves you predict correctly.</li>
                 </ul>
@@ -55,9 +56,9 @@
                 </div>
 
                 <form id="prediction-form">
-                    <!-- Scores per Half -->
+                    <!-- Goals Earned Predictions per Half & Final Score -->
                     <fieldset>
-                        <legend>Score Predictions per Half</legend>
+                        <legend>Goals Earned Predictions per Half & Final Score</legend>
                         <div class="halves-grid">
                             <div class="half-box">
                                 <h3>First Half</h3>
@@ -79,6 +80,17 @@
                                 <div class="score-input-group">
                                     <label for="pred-sa-2nd">South Africa:</label>
                                     <input type="number" id="pred-sa-2nd" name="south_africa_2nd" min="0" required value="0">
+                                </div>
+                            </div>
+                            <div class="half-box">
+                                <h3>Final Score</h3>
+                                <div class="score-input-group">
+                                    <label for="pred-mx-final">Mexico:</label>
+                                    <input type="number" id="pred-mx-final" name="mexico_final" min="0" required value="0">
+                                </div>
+                                <div class="score-input-group">
+                                    <label for="pred-sa-final">South Africa:</label>
+                                    <input type="number" id="pred-sa-final" name="south_africa_final" min="0" required value="0">
                                 </div>
                             </div>
                         </div>

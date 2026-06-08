@@ -200,6 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         document.getElementById("pred-sa-1st").value = preds.scores.south_africa_1st || 0;
                         document.getElementById("pred-mx-2nd").value = preds.scores.mexico_2nd || 0;
                         document.getElementById("pred-sa-2nd").value = preds.scores.south_africa_2nd || 0;
+                        document.getElementById("pred-mx-final").value = preds.scores.mexico_final || 0;
+                        document.getElementById("pred-sa-final").value = preds.scores.south_africa_final || 0;
                     }
                     
                     // 2. Goal Scorers
@@ -240,7 +242,9 @@ document.addEventListener("DOMContentLoaded", () => {
             mexico_1st: parseInt(document.getElementById("pred-mx-1st").value) || 0,
             south_africa_1st: parseInt(document.getElementById("pred-sa-1st").value) || 0,
             mexico_2nd: parseInt(document.getElementById("pred-mx-2nd").value) || 0,
-            south_africa_2nd: parseInt(document.getElementById("pred-sa-2nd").value) || 0
+            south_africa_2nd: parseInt(document.getElementById("pred-sa-2nd").value) || 0,
+            mexico_final: parseInt(document.getElementById("pred-mx-final").value) || 0,
+            south_africa_final: parseInt(document.getElementById("pred-sa-final").value) || 0
         };
 
         // Gather Scorers

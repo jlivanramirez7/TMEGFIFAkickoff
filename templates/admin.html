@@ -19,9 +19,43 @@
             <p class="admin-notice">Updating this form will recalculate all user scores and update the leaderboard in real-time.</p>
             
             <form id="admin-form">
-                <!-- Scores per Half -->
+                <!-- Match Status & Finalization Controls -->
                 <fieldset>
-                    <legend>Actual Scores per Half</legend>
+                    <legend>Match Status & Finalization</legend>
+                    <p class="field-hint">Control when scores and saves are calculated on the leaderboard.</p>
+                    <div class="halves-grid">
+                        <div class="score-input-group">
+                            <label for="admin-status">Match Status:</label>
+                            <select id="admin-status" name="status" style="width: 150px; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+                                <option value="scheduled">Scheduled (Not Started)</option>
+                                <option value="live">Live (In Progress)</option>
+                                <option value="final">Final (Completed)</option>
+                            </select>
+                        </div>
+                        <div class="checkboxes-group" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="checklist-item" style="border-bottom: none; padding: 0;">
+                                <input type="checkbox" id="admin-1st-final" name="first_half_final">
+                                <label for="admin-1st-final" style="font-weight: 500; cursor: pointer;">First Half Score Finalized</label>
+                            </div>
+                            <div class="checklist-item" style="border-bottom: none; padding: 0;">
+                                <input type="checkbox" id="admin-2nd-final" name="second_half_final">
+                                <label for="admin-2nd-final" style="font-weight: 500; cursor: pointer;">Second Half Score Finalized</label>
+                            </div>
+                            <div class="checklist-item" style="border-bottom: none; padding: 0;">
+                                <input type="checkbox" id="admin-final-final" name="final_score_final">
+                                <label for="admin-final-final" style="font-weight: 500; cursor: pointer;">Final Score Finalized</label>
+                            </div>
+                            <div class="checklist-item" style="border-bottom: none; padding: 0;">
+                                <input type="checkbox" id="admin-saves-final" name="saves_final">
+                                <label for="admin-saves-final" style="font-weight: 500; cursor: pointer;">Goalie Saves Finalized (End of Match)</label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Goals Earned per Half & Final Score -->
+                <fieldset>
+                    <legend>Actual Goals Earned per Half & Final Score</legend>
                     <div class="halves-grid">
                         <div class="half-box">
                             <h3>First Half</h3>
@@ -43,6 +77,17 @@
                             <div class="score-input-group">
                                 <label for="actual-sa-2nd">South Africa:</label>
                                 <input type="number" id="actual-sa-2nd" name="south_africa_2nd" min="0" required value="0">
+                            </div>
+                        </div>
+                        <div class="half-box">
+                            <h3>Final Score</h3>
+                            <div class="score-input-group">
+                                <label for="actual-mx-final">Mexico:</label>
+                                <input type="number" id="actual-mx-final" name="mexico_final" min="0" required value="0">
+                            </div>
+                            <div class="score-input-group">
+                                <label for="actual-sa-final">South Africa:</label>
+                                <input type="number" id="actual-sa-final" name="south_africa_final" min="0" required value="0">
                             </div>
                         </div>
                     </div>

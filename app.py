@@ -107,13 +107,19 @@ def get_game_state():
         else:
             # Initialize Firestore default state
             initial_state = {
+                "status": "scheduled",  # "scheduled" | "live" | "final"
+                "first_half_final": False,
+                "second_half_final": False,
+                "final_score_final": False,
+                "saves_final": False,
                 "scores": {
                     "mexico_1st": 0, "south_africa_1st": 0,
-                    "mexico_2nd": 0, "south_africa_2nd": 0
+                    "mexico_2nd": 0, "south_africa_2nd": 0,
+                    "mexico_final": 0, "south_africa_final": 0
                 },
                 "goal_scorers": [],
                 "goalie_saves": {
-                    goalie: 0 
+                    goalie["name"]: 0 
                     for team in ROSTERS.values() 
                     for goalie in team["Goalies"]
                 }
@@ -124,13 +130,19 @@ def get_game_state():
         # Local JSON Initialization
         if not os.path.exists(GAME_STATE_FILE):
             initial_state = {
+                "status": "scheduled",  # "scheduled" | "live" | "final"
+                "first_half_final": False,
+                "second_half_final": False,
+                "final_score_final": False,
+                "saves_final": False,
                 "scores": {
                     "mexico_1st": 0, "south_africa_1st": 0,
-                    "mexico_2nd": 0, "south_africa_2nd": 0
+                    "mexico_2nd": 0, "south_africa_2nd": 0,
+                    "mexico_final": 0, "south_africa_final": 0
                 },
                 "goal_scorers": [],
                 "goalie_saves": {
-                    goalie: 0 
+                    goalie["name"]: 0 
                     for team in ROSTERS.values() 
                     for goalie in team["Goalies"]
                 }
@@ -180,37 +192,60 @@ def get_user_prediction(ldap):
         all_predictions = load_json(PREDICTIONS_FILE)
         return all_predictions.get(ldap)
 
-# --- Scoring Engine ---
+# --- Scoring Engine (Safe Live-Scoring Rules) ---
 
 def calculate_score(prediction, game_state):
+    # If the match hasn't started yet, everyone has exactly 0 points.
+    if game_state.get("status", "scheduled") == "scheduled":
+        return 0
+        
     score = 0
     
-    # 1. Scores per Half (10 pts each)
-    for key in ["mexico_1st", "south_africa_1st", "mexico_2nd", "south_africa_2nd"]:
-        user_val = prediction.get("scores", {}).get(key)
-        actual_val = game_state.get("scores", {}).get(key)
-        if user_val is not None and actual_val is not None:
-            if int(user_val) == int(actual_val):
-                score += 10
+    # 1. Goals Earned per Half (10 pts each, ONLY if that half is marked final by the admin)
+    if game_state.get("first_half_final", False):
+        for key in ["mexico_1st", "south_africa_1st"]:
+            user_val = prediction.get("scores", {}).get(key)
+            actual_val = game_state.get("scores", {}).get(key)
+            if user_val is not None and actual_val is not None:
+                if int(user_val) == int(actual_val):
+                    score += 10
+                    
+    if game_state.get("second_half_final", False):
+        for key in ["mexico_2nd", "south_africa_2nd"]:
+            user_val = prediction.get("scores", {}).get(key)
+            actual_val = game_state.get("scores", {}).get(key)
+            if user_val is not None and actual_val is not None:
+                if int(user_val) == int(actual_val):
+                    score += 10
+
+    # 1.5 Final Score (10 pts each, ONLY if final score is marked final by the admin)
+    if game_state.get("final_score_final", False):
+        for key in ["mexico_final", "south_africa_final"]:
+            user_val = prediction.get("scores", {}).get(key)
+            actual_val = game_state.get("scores", {}).get(key)
+            if user_val is not None and actual_val is not None:
+                if int(user_val) == int(actual_val):
+                    score += 10
                 
-    # 2. Goal Scorers (20 pts for each correctly predicted goal scorer)
+    # 2. Goal Scorers (20 pts for each correctly predicted scorer)
+    # Calculated immediately during "live" match for any player who has scored.
     user_scorers = set(prediction.get("goal_scorers", []))
     actual_scorers = set(game_state.get("goal_scorers", []))
     correct_scorers = user_scorers.intersection(actual_scorers)
     score += len(correct_scorers) * 20
     
-    # 3. Goalie Saves (5 pts for each correctly predicted saves count)
-    user_saves = prediction.get("goalie_saves", {})
-    actual_saves = game_state.get("goalie_saves", {})
-    for goalie, actual_val in actual_saves.items():
-        user_val = user_saves.get(goalie)
-        if user_val is not None and actual_val is not None:
-            if int(user_val) == int(actual_val):
-                score += 5
+    # 3. Goalie Saves (5 pts each, ONLY when saves are marked final at the end of the match)
+    if game_state.get("saves_final", False):
+        user_saves = prediction.get("goalie_saves", {})
+        actual_saves = game_state.get("goalie_saves", {})
+        for goalie, actual_val in actual_saves.items():
+            user_val = user_saves.get(goalie)
+            if user_val is not None and actual_val is not None:
+                if int(user_val) == int(actual_val):
+                    score += 5
                 
     return score
 
-# --- Request Handler ---
 
 class GameRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
