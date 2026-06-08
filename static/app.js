@@ -30,17 +30,67 @@ document.addEventListener("DOMContentLoaded", () => {
     const sa2nd = document.getElementById("pred-sa-2nd");
     const saFinal = document.getElementById("pred-sa-final");
 
+    function showFormWarning(msg) {
+        formError.textContent = msg;
+        formError.classList.remove("hidden");
+        // Auto hide after 3.5 seconds
+        setTimeout(() => {
+            if (formError.textContent === msg) {
+                formError.classList.add("hidden");
+            }
+        }, 3500);
+    }
+
+    function enforceScorerLimits() {
+        const mxLimit = parseInt(mxFinal.value) || 0;
+        const saLimit = parseInt(saFinal.value) || 0;
+        
+        const mxChecked = document.querySelectorAll('#mexico-scorers-list input[name="goal_scorers"]:checked');
+        const saChecked = document.querySelectorAll('#sa-scorers-list input[name="goal_scorers"]:checked');
+        
+        if (mxChecked.length > mxLimit) {
+            for (let i = mxLimit; i < mxChecked.length; i++) {
+                mxChecked[i].checked = false;
+            }
+            showFormWarning(`Mexico selected scorers reduced to ${mxLimit} to match your goals prediction.`);
+        }
+        
+        if (saChecked.length > saLimit) {
+            for (let i = saLimit; i < saChecked.length; i++) {
+                saChecked[i].checked = false;
+            }
+            showFormWarning(`South Africa selected scorers reduced to ${saLimit} to match your goals prediction.`);
+        }
+    }
+
     const updateMxFinal = () => {
         mxFinal.value = (parseInt(mx1st.value) || 0) + (parseInt(mx2nd.value) || 0);
+        enforceScorerLimits();
     };
     const updateSaFinal = () => {
         saFinal.value = (parseInt(sa1st.value) || 0) + (parseInt(sa2nd.value) || 0);
+        enforceScorerLimits();
     };
 
     mx1st.addEventListener("input", updateMxFinal);
     mx2nd.addEventListener("input", updateMxFinal);
     sa1st.addEventListener("input", updateSaFinal);
     sa2nd.addEventListener("input", updateSaFinal);
+
+    // Dynamic click check: Block selecting scorers beyond predicted goals
+    predictionForm.addEventListener("change", (e) => {
+        if (e.target.name === "goal_scorers") {
+            const isMexico = e.target.closest("#mexico-scorers-list") !== null;
+            const limit = isMexico ? (parseInt(mxFinal.value) || 0) : (parseInt(saFinal.value) || 0);
+            const listId = isMexico ? "#mexico-scorers-list" : "#sa-scorers-list";
+            const checkedCount = document.querySelectorAll(`${listId} input[name="goal_scorers"]:checked`).length;
+            
+            if (e.target.checked && checkedCount > limit) {
+                e.target.checked = false; // Prevent selection
+                showFormWarning(`You predicted ${isMexico ? "Mexico" : "South Africa"} will score ${limit} goals. You cannot select more scorers than goals!`);
+            }
+        }
+    });
 
     let isLocked = false;
     let timerInterval = null;
@@ -281,6 +331,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Gather Scorers
         const goalScorers = [];
+        const mxScorersCount = document.querySelectorAll('#mexico-scorers-list input[name="goal_scorers"]:checked').length;
+        const saScorersCount = document.querySelectorAll('#sa-scorers-list input[name="goal_scorers"]:checked').length;
+
+        // Airtight Submit Validation
+        formError.classList.add("hidden");
+        formSuccess.classList.add("hidden");
+
+        if (mxScorersCount > scores.mexico_final) {
+            formError.textContent = `Validation Error: You selected ${mxScorersCount} Mexico goal scorers, but you only predicted ${scores.mexico_final} goals. Please reduce your selected scorers.`;
+            formError.classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        if (saScorersCount > scores.south_africa_final) {
+            formError.textContent = `Validation Error: You selected ${saScorersCount} South Africa goal scorers, but you only predicted ${scores.south_africa_final} goals. Please reduce your selected scorers.`;
+            formError.classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
         document.querySelectorAll('input[name="goal_scorers"]:checked').forEach(cb => {
             goalScorers.push(cb.value);
         });
@@ -300,9 +371,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 goalie_saves: goalieSaves
             }
         };
-
-        formError.classList.add("hidden");
-        formSuccess.classList.add("hidden");
 
         fetch("/api/predictions", {
             method: "POST",

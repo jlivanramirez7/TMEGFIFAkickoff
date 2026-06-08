@@ -413,6 +413,32 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             if not ldap:
                 self.send_json_response({"success": False, "message": "LDAP cannot be empty."}, status=400)
                 return
+
+            # Airtight Backend Consistency Validation
+            mexico_outfield = {p["name"] for p in ROSTERS["Mexico"]["Outfield"]}
+            sa_outfield = {p["name"] for p in ROSTERS["South Africa"]["Outfield"]}
+            
+            submitted_scorers = predictions.get("goal_scorers", [])
+            mx_scorers_count = sum(1 for s in submitted_scorers if s in mexico_outfield)
+            sa_scorers_count = sum(1 for s in submitted_scorers if s in sa_outfield)
+            
+            pred_scores = predictions.get("scores", {})
+            mx_final_pred = int(pred_scores.get("mexico_final", 0))
+            sa_final_pred = int(pred_scores.get("south_africa_final", 0))
+            
+            if mx_scorers_count > mx_final_pred:
+                self.send_json_response({
+                    "success": False,
+                    "message": f"Validation Error: You selected {mx_scorers_count} Mexico scorers, but you only predicted {mx_final_pred} goals."
+                }, status=400)
+                return
+                
+            if sa_scorers_count > sa_final_pred:
+                self.send_json_response({
+                    "success": False,
+                    "message": f"Validation Error: You selected {sa_scorers_count} South Africa scorers, but you only predicted {sa_final_pred} goals."
+                }, status=400)
+                return
                 
             predictions["submitted_at"] = datetime.now(timezone.utc).isoformat()
             save_prediction(ldap, predictions)
