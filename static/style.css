@@ -435,14 +435,17 @@ tbody tr:nth-child(3) {
     letter-spacing: 0.5px;
 }
 
-.position-badge {
-    background-color: #e2e8f0;
-    color: #4a5568;
+.player-pos {
+    font-size: 0.82rem;
+    color: #64748b; /* Muted slate gray */
+    margin-left: 5px;
+    font-weight: 500;
 }
 
-.goalie-badge {
-    background-color: #fef3c7;
-    color: #d97706;
+.goalie-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 /* Rules & How to Win Panel styling */

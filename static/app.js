@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
             div.innerHTML = `
                 <input type="checkbox" id="${id}" value="${player.name}" name="goal_scorers">
                 <label for="${id}">
-                    <span>${player.name} <span class="badge position-badge">${player.position}</span></span>
+                    <span>${player.name} <span class="player-pos">(${player.position})</span></span>
                     ${starterBadge}
                 </label>
             `;
@@ -207,10 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? '<span class="badge starter-badge">Starter</span>' 
                 : '<span class="badge bench-badge">Bench</span>';
             div.innerHTML = `
-                <span>
-                    ${goalie.name} <span class="badge goalie-badge">${goalie.string}</span>
+                <div class="goalie-info">
+                    <span>${goalie.name} <span class="player-pos">(${goalie.string})</span></span>
                     ${starterBadge}
-                </span>
+                </div>
                 <input type="number" id="${id}" name="save-${goalie.name}" min="0" value="0" class="saves-input">
             `;
             container.appendChild(div);
