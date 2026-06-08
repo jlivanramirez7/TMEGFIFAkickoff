@@ -8,7 +8,7 @@ import urllib.parse
 ADMIN_PASSWORD = "TMEG_2026_Admin!"  # Default password
 LOCK_TIME = datetime(2026, 6, 11, 19, 0, 0, tzinfo=timezone.utc)  # 3:00 PM EDT = 19:00 UTC
 
-# Paths for data storage
+# Paths for local data storage (fallback)
 DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 PREDICTIONS_FILE = os.path.join(DATA_DIR, "predictions.json")
 GAME_STATE_FILE = os.path.join(DATA_DIR, "game_state.json")
@@ -37,43 +37,125 @@ ROSTERS = {
     }
 }
 
-# Helper: Initialize files if they don't exist
-def init_data_files():
-    if not os.path.exists(PREDICTIONS_FILE):
-        with open(PREDICTIONS_FILE, "w") as f:
-            json.dump({}, f)
-            
-    if not os.path.exists(GAME_STATE_FILE):
-        initial_state = {
-            "scores": {
-                "mexico_1st": 0,
-                "south_africa_1st": 0,
-                "mexico_2nd": 0,
-                "south_africa_2nd": 0
-            },
-            "goal_scorers": [],
-            "goalie_saves": {
-                goalie: 0 
-                for team in ROSTERS.values() 
-                for goalie in team["Goalies"]
-            }
-        }
-        with open(GAME_STATE_FILE, "w") as f:
-            json.dump(initial_state, f)
+# --- Firestore / Local JSON Persistence Layer ---
 
-init_data_files()
+# Try to initialize Google Cloud Firestore.
+# If running in Cloud Run, it inherits credentials automatically.
+# Locally, it will fall back to local JSON if no GCP project is configured.
+USE_FIRESTORE = False
+db = None
 
-# Helper: Load JSON
+try:
+    from google.cloud import firestore
+    # Client will auto-detect project if running in GCP (Cloud Run)
+    # Or locally if GOOGLE_APPLICATION_CREDENTIALS is set
+    db = firestore.Client()
+    # Test connection by attempting to access a collection (lazy init check)
+    # A simple call to verify we have access
+    USE_FIRESTORE = True
+    print("[INFO] Firestore client initialized successfully. Persisting to Google Cloud Firestore.")
+except Exception as e:
+    USE_FIRESTORE = False
+    db = None
+    print(f"[INFO] Firestore not initialized ({e}). Persisting locally to JSON files.")
+
+# Local File Helper: Load JSON
 def load_json(filepath):
+    if not os.path.exists(filepath):
+        return {}
     with open(filepath, "r") as f:
         return json.load(f)
 
-# Helper: Save JSON
+# Local File Helper: Save JSON
 def save_json(filepath, data):
     with open(filepath, "w") as f:
         json.dump(data, f, indent=2)
 
-# Helper: Calculate user score
+# Helper: Get Current Game State
+def get_game_state():
+    if USE_FIRESTORE:
+        doc_ref = db.collection("game_state").document("current")
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+        else:
+            # Initialize Firestore default state
+            initial_state = {
+                "scores": {
+                    "mexico_1st": 0, "south_africa_1st": 0,
+                    "mexico_2nd": 0, "south_africa_2nd": 0
+                },
+                "goal_scorers": [],
+                "goalie_saves": {
+                    goalie: 0 
+                    for team in ROSTERS.values() 
+                    for goalie in team["Goalies"]
+                }
+            }
+            doc_ref.set(initial_state)
+            return initial_state
+    else:
+        # Local JSON Initialization
+        if not os.path.exists(GAME_STATE_FILE):
+            initial_state = {
+                "scores": {
+                    "mexico_1st": 0, "south_africa_1st": 0,
+                    "mexico_2nd": 0, "south_africa_2nd": 0
+                },
+                "goal_scorers": [],
+                "goalie_saves": {
+                    goalie: 0 
+                    for team in ROSTERS.values() 
+                    for goalie in team["Goalies"]
+                }
+            }
+            save_json(GAME_STATE_FILE, initial_state)
+            return initial_state
+        return load_json(GAME_STATE_FILE)
+
+# Helper: Save Game State
+def save_game_state(state):
+    if USE_FIRESTORE:
+        db.collection("game_state").document("current").set(state)
+    else:
+        save_json(GAME_STATE_FILE, state)
+
+# Helper: Get All Predictions
+def get_all_predictions():
+    if USE_FIRESTORE:
+        preds = {}
+        docs = db.collection("predictions").stream()
+        for doc in docs:
+            preds[doc.id] = doc.to_dict()
+        return preds
+    else:
+        if not os.path.exists(PREDICTIONS_FILE):
+            save_json(PREDICTIONS_FILE, {})
+            return {}
+        return load_json(PREDICTIONS_FILE)
+
+# Helper: Save/Update User Prediction
+def save_prediction(ldap, prediction_data):
+    if USE_FIRESTORE:
+        db.collection("predictions").document(ldap).set(prediction_data)
+    else:
+        all_predictions = load_json(PREDICTIONS_FILE)
+        all_predictions[ldap] = prediction_data
+        save_json(PREDICTIONS_FILE, all_predictions)
+
+# Helper: Get Single User Prediction
+def get_user_prediction(ldap):
+    if USE_FIRESTORE:
+        doc = db.collection("predictions").document(ldap).get()
+        if doc.exists:
+            return doc.to_dict()
+        return None
+    else:
+        all_predictions = load_json(PREDICTIONS_FILE)
+        return all_predictions.get(ldap)
+
+# --- Scoring Engine ---
+
 def calculate_score(prediction, game_state):
     score = 0
     
@@ -102,10 +184,11 @@ def calculate_score(prediction, game_state):
                 
     return score
 
+# --- Request Handler ---
 
 class GameRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
-        # Suppress server logging to keep terminal clean, or let it log
+        # Allow standard request logging to stdout
         super().log_message(format, *args)
 
     def serve_file(self, relative_path, content_type):
@@ -116,7 +199,6 @@ class GameRequestHandler(BaseHTTPRequestHandler):
         
         self.send_response(200)
         self.send_header("Content-Type", content_type)
-        # Prevent caching for live development
         self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
         self.end_headers()
         with open(filepath, "rb") as f:
@@ -171,8 +253,8 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             })
             
         elif path == "/api/leaderboard":
-            predictions = load_json(PREDICTIONS_FILE)
-            game_state = load_json(GAME_STATE_FILE)
+            predictions = get_all_predictions()
+            game_state = get_game_state()
             
             leaderboard = []
             for ldap, pred in predictions.items():
@@ -201,12 +283,11 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             if pwd != ADMIN_PASSWORD:
                 self.send_json_response({"success": False, "message": "Unauthorized"}, status=403)
                 return
-            self.send_json_response(load_json(GAME_STATE_FILE))
+            self.send_json_response(get_game_state())
 
         elif path.startswith("/api/predictions/"):
             ldap = path.split("/")[-1].strip().lower()
-            all_predictions = load_json(PREDICTIONS_FILE)
-            user_pred = all_predictions.get(ldap)
+            user_pred = get_user_prediction(ldap)
             if not user_pred:
                 self.send_json_response({"found": False})
             else:
@@ -245,10 +326,8 @@ class GameRequestHandler(BaseHTTPRequestHandler):
                 self.send_json_response({"success": False, "message": "LDAP cannot be empty."}, status=400)
                 return
                 
-            all_predictions = load_json(PREDICTIONS_FILE)
             predictions["submitted_at"] = datetime.now(timezone.utc).isoformat()
-            all_predictions[ldap] = predictions
-            save_json(PREDICTIONS_FILE, all_predictions)
+            save_prediction(ldap, predictions)
             self.send_json_response({"success": True, "message": "Predictions submitted successfully!"})
 
         elif path == "/api/admin/update":
@@ -263,7 +342,7 @@ class GameRequestHandler(BaseHTTPRequestHandler):
                 self.send_json_response({"success": False, "message": "Invalid game state payload."}, status=400)
                 return
                 
-            save_json(GAME_STATE_FILE, new_state)
+            save_game_state(new_state)
             self.send_json_response({"success": True, "message": "Game state updated successfully!"})
 
         else:
@@ -281,4 +360,6 @@ def run(port=5000):
         httpd.server_close()
 
 if __name__ == "__main__":
-    run()
+    # Cloud Run injects the PORT environment variable
+    port = int(os.environ.get("PORT", 5000))
+    run(port=port)
