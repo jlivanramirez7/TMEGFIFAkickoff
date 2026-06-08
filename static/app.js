@@ -164,10 +164,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const div = document.createElement("div");
             div.className = "checklist-item";
             div.innerHTML = `
-                <input type="checkbox" id="${id}" value="${player}" name="goal_scorers">
-                <label for="${id}">${player}</label>
+                <input type="checkbox" id="${id}" value="${player.name}" name="goal_scorers">
+                <label for="${id}">${player.name} <span class="badge position-badge">${player.position}</span></label>
             `;
-            // Make label click behave well
             container.appendChild(div);
         });
     }
@@ -179,8 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const div = document.createElement("div");
             div.className = "goalie-save-row";
             div.innerHTML = `
-                <span>${goalie}</span>
-                <input type="number" id="${id}" name="save-${goalie}" min="0" value="0" class="saves-input">
+                <span>${goalie.name} <span class="badge goalie-badge">${goalie.string}</span></span>
+                <input type="number" id="${id}" name="save-${goalie.name}" min="0" value="0" class="saves-input">
             `;
             container.appendChild(div);
         });

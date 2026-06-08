@@ -13,26 +13,54 @@ DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 PREDICTIONS_FILE = os.path.join(DATA_DIR, "predictions.json")
 GAME_STATE_FILE = os.path.join(DATA_DIR, "game_state.json")
 
-# Rosters Definition
+# Rosters Definition with Positions & Strings
 ROSTERS = {
     "Mexico": {
-        "Goalies": ["Guillermo Ochoa", "Carlos Acevedo", "Raúl Rangel"],
+        "Goalies": [
+            {"name": "Guillermo Ochoa", "string": "1st String"},
+            {"name": "Carlos Acevedo", "string": "2nd String"},
+            {"name": "Raúl Rangel", "string": "3rd String"}
+        ],
         "Outfield": [
-            "Jorge Sánchez", "César Montes", "Edson Álvarez", "Johan Vásquez",
-            "Gerardo Arteaga", "Jesús Gallardo", "Israel Reyes", "Luis Romo",
-            "Álvaro Fidalgo", "Orbelín Pineda", "Luis Chávez", "Erick Sánchez",
-            "Raúl Jiménez", "Santiago Giménez", "Alexis Vega", "César Huerta",
-            "Julián Quiñones"
+            {"name": "Jorge Sánchez", "position": "Defender"},
+            {"name": "César Montes", "position": "Defender"},
+            {"name": "Edson Álvarez", "position": "Midfielder"},
+            {"name": "Johan Vásquez", "position": "Defender"},
+            {"name": "Gerardo Arteaga", "position": "Defender"},
+            {"name": "Jesús Gallardo", "position": "Defender/Midfielder"},
+            {"name": "Israel Reyes", "position": "Defender"},
+            {"name": "Luis Romo", "position": "Midfielder"},
+            {"name": "Álvaro Fidalgo", "position": "Midfielder"},
+            {"name": "Orbelín Pineda", "position": "Midfielder"},
+            {"name": "Luis Chávez", "position": "Midfielder"},
+            {"name": "Erick Sánchez", "position": "Midfielder"},
+            {"name": "Raúl Jiménez", "position": "Forward"},
+            {"name": "Santiago Giménez", "position": "Forward"},
+            {"name": "Alexis Vega", "position": "Forward"},
+            {"name": "César Huerta", "position": "Forward"},
+            {"name": "Julián Quiñones", "position": "Forward"}
         ]
     },
     "South Africa": {
-        "Goalies": ["Ronwen Williams", "Sipho Chaine", "Ricardo Goss"],
+        "Goalies": [
+            {"name": "Ronwen Williams", "string": "1st String"},
+            {"name": "Sipho Chaine", "string": "2nd String"},
+            {"name": "Ricardo Goss", "string": "3rd String"}
+        ],
         "Outfield": [
-            "Thabang Matuludi", "Khulumani Ndamane", "Aubrey Modiba",
-            "Nkosinathi Sibisi", "Khuliso Mudau", "Teboho Mokoena",
-            "Themba Zwane", "Sphephelo Sithole", "Lyle Foster",
-            "Iqraam Rayners", "Evidence Makgopa", "Oswin Appollis",
-            "Tshepang Moremi"
+            {"name": "Thabang Matuludi", "position": "Defender"},
+            {"name": "Khulumani Ndamane", "position": "Defender"},
+            {"name": "Aubrey Modiba", "position": "Midfielder/Defender"},
+            {"name": "Nkosinathi Sibisi", "position": "Defender"},
+            {"name": "Khuliso Mudau", "position": "Defender"},
+            {"name": "Teboho Mokoena", "position": "Midfielder"},
+            {"name": "Themba Zwane", "position": "Midfielder"},
+            {"name": "Sphephelo Sithole", "position": "Midfielder"},
+            {"name": "Lyle Foster", "position": "Forward"},
+            {"name": "Iqraam Rayners", "position": "Forward"},
+            {"name": "Evidence Makgopa", "position": "Forward"},
+            {"name": "Oswin Appollis", "position": "Midfielder/Forward"},
+            {"name": "Tshepang Moremi", "position": "Forward/Midfielder"}
         ]
     }
 }

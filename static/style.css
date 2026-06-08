@@ -422,17 +422,88 @@ tbody tr:nth-child(3) {
     font-size: 0.9rem;
 }
 
-/* Footer */
-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: var(--dark-color);
-    color: #bbb;
-    text-align: center;
-    padding: 12px;
-    font-size: 0.85rem;
-    border-top: 2px solid var(--secondary-color);
-    z-index: 1000;
+/* Badges for Player Positions & Goalie Strings */
+.badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 6px;
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
+
+.position-badge {
+    background-color: #e2e8f0;
+    color: #4a5568;
+}
+
+.goalie-badge {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+/* Rules & How to Win Panel styling */
+.rules-card {
+    background-color: rgba(0, 99, 65, 0.03) !important;
+    border-left: 5px solid var(--primary-color) !important;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.rules-card h2 {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-size: 1.3rem;
+}
+
+.rules-intro {
+    font-size: 0.95rem;
+    color: #495057;
+    margin-bottom: 12px;
+}
+
+.rules-list {
+    padding-left: 0;
+    list-style: none;
+}
+
+.rules-list li {
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    position: relative;
+    padding-left: 20px;
+}
+
+.rules-list li::before {
+    content: "•";
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 1.2rem;
+    position: absolute;
+    left: 5px;
+    top: -2px;
+}
+
+.rules-lock {
+    font-size: 0.85rem;
+    color: #b91c1c;
+    font-weight: 600;
+    margin-top: 15px;
+    background-color: #fef2f2;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px dashed #fee2e2;
+}
+
+/* Adjustments for labels containing badges */
+.checklist-item label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    cursor: pointer;
+}
+
