@@ -22,6 +22,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const mxGoaliesList = document.getElementById("mexico-goalies-list");
     const saGoaliesList = document.getElementById("sa-goalies-list");
 
+    // Live calculation of Final Scores
+    const mx1st = document.getElementById("pred-mx-1st");
+    const mx2nd = document.getElementById("pred-mx-2nd");
+    const mxFinal = document.getElementById("pred-mx-final");
+    const sa1st = document.getElementById("pred-sa-1st");
+    const sa2nd = document.getElementById("pred-sa-2nd");
+    const saFinal = document.getElementById("pred-sa-final");
+
+    const updateMxFinal = () => {
+        mxFinal.value = (parseInt(mx1st.value) || 0) + (parseInt(mx2nd.value) || 0);
+    };
+    const updateSaFinal = () => {
+        saFinal.value = (parseInt(sa1st.value) || 0) + (parseInt(sa2nd.value) || 0);
+    };
+
+    mx1st.addEventListener("input", updateMxFinal);
+    mx2nd.addEventListener("input", updateMxFinal);
+    sa1st.addEventListener("input", updateSaFinal);
+    sa2nd.addEventListener("input", updateSaFinal);
+
     let isLocked = false;
     let timerInterval = null;
     let leaderboardInterval = null;

@@ -23,6 +23,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const mxGoaliesList = document.getElementById("mexico-goalies-list");
     const saGoaliesList = document.getElementById("sa-goalies-list");
 
+    // Live calculation of Actual Final Scores
+    const mx1st = document.getElementById("actual-mx-1st");
+    const mx2nd = document.getElementById("actual-mx-2nd");
+    const mxFinal = document.getElementById("actual-mx-final");
+    const sa1st = document.getElementById("actual-sa-1st");
+    const sa2nd = document.getElementById("actual-sa-2nd");
+    const saFinal = document.getElementById("actual-sa-final");
+
+    const updateMxFinal = () => {
+        mxFinal.value = (parseInt(mx1st.value) || 0) + (parseInt(mx2nd.value) || 0);
+    };
+    const updateSaFinal = () => {
+        saFinal.value = (parseInt(sa1st.value) || 0) + (parseInt(sa2nd.value) || 0);
+    };
+
+    mx1st.addEventListener("input", updateMxFinal);
+    mx2nd.addEventListener("input", updateMxFinal);
+    sa1st.addEventListener("input", updateSaFinal);
+    sa2nd.addEventListener("input", updateSaFinal);
+
     // --- Roster and State Load ---
 
     async function initAdminConsole() {
