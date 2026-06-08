@@ -47,13 +47,11 @@ db = None
 
 try:
     from google.cloud import firestore
-    # Client will auto-detect project if running in GCP (Cloud Run)
-    # Or locally if GOOGLE_APPLICATION_CREDENTIALS is set
-    db = firestore.Client()
-    # Test connection by attempting to access a collection (lazy init check)
-    # A simple call to verify we have access
+    # Initialize with user-specified project and database
+    db = firestore.Client(project="tmegfifa2026", database="tmegfifa")
+    # Test connection
     USE_FIRESTORE = True
-    print("[INFO] Firestore client initialized successfully. Persisting to Google Cloud Firestore.")
+    print("[INFO] Firestore client initialized successfully. Persisting to Google Cloud Firestore (database: tmegfifa).")
 except Exception as e:
     USE_FIRESTORE = False
     db = None
