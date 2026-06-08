@@ -227,12 +227,16 @@ def calculate_score(prediction, game_state):
                 if int(user_val) == int(actual_val):
                     score += 10
                 
-    # 2. Goal Scorers (20 pts for each correctly predicted scorer)
-    # Calculated immediately during "live" match for any player who has scored.
+    # 2. Goal Scorers (20 pts for correct, -10 pts penalty for incorrect guesses)
+    # Calculated immediately during "live" match.
     user_scorers = set(prediction.get("goal_scorers", []))
     actual_scorers = set(game_state.get("goal_scorers", []))
+    
     correct_scorers = user_scorers.intersection(actual_scorers)
+    incorrect_scorers = user_scorers.difference(actual_scorers)
+    
     score += len(correct_scorers) * 20
+    score -= len(incorrect_scorers) * 10
     
     # 3. Goalie Saves (5 pts each, ONLY when saves are marked final at the end of the match)
     if game_state.get("saves_final", False):
@@ -244,7 +248,7 @@ def calculate_score(prediction, game_state):
                 if int(user_val) == int(actual_val):
                     score += 5
                 
-    return score
+    return max(0, score)
 
 
 class GameRequestHandler(BaseHTTPRequestHandler):
