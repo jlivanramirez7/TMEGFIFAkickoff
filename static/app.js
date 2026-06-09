@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isLocked = false;
     let timerInterval = null;
     let leaderboardInterval = null;
+    let localCountdownInterval = null;
 
     // --- Authentication Flow ---
     
@@ -160,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         timerBox.style.borderLeftColor = "#dc3545";
                         disablePredictionForm();
                         clearInterval(timerInterval);
+                        if (localCountdownInterval) clearInterval(localCountdownInterval);
                     } else {
                         updateCountdown(data.time_left);
                     }
@@ -168,11 +170,13 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         
         checkStatus();
-        // Poll lock status every 10 seconds, but we count down locally
+        // Poll lock status every 10 seconds to sync time
         timerInterval = setInterval(checkStatus, 10000);
     }
 
     function updateCountdown(secondsLeft) {
+        if (localCountdownInterval) clearInterval(localCountdownInterval);
+
         if (secondsLeft <= 0) {
             countdownEl.textContent = "PREDICTIONS LOCKED!";
             countdownEl.classList.add("locked-msg");
@@ -180,23 +184,31 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         
-        let localSeconds = secondsLeft;
+        const targetTime = Date.now() + (secondsLeft * 1000);
         
-        // Local second-by-second countdown to keep it smooth
-        const interval = setInterval(() => {
-            if (localSeconds <= 0 || isLocked) {
-                clearInterval(interval);
+        const tick = () => {
+            const now = Date.now();
+            const diff = targetTime - now;
+            
+            if (diff <= 0 || isLocked) {
+                countdownEl.textContent = "PREDICTIONS LOCKED!";
+                countdownEl.classList.add("locked-msg");
+                disablePredictionForm();
+                if (localCountdownInterval) clearInterval(localCountdownInterval);
                 return;
             }
             
-            const days = Math.floor(localSeconds / (3600 * 24));
-            const hours = Math.floor((localSeconds % (3600 * 24)) / 3600);
-            const minutes = Math.floor((localSeconds % 3600) / 60);
-            const secs = Math.floor(localSeconds % 60);
+            const totalSeconds = Math.round(diff / 1000);
+            const days = Math.floor(totalSeconds / (3600 * 24));
+            const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const secs = Math.floor(totalSeconds % 60);
             
             countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${secs}s`;
-            localSeconds--;
-        }, 1000);
+        };
+        
+        tick();
+        localCountdownInterval = setInterval(tick, 1000);
     }
 
     function disablePredictionForm() {
