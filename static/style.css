@@ -76,7 +76,7 @@ header h1 {
     max-width: 800px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1350px) {
     .container {
         grid-template-columns: 1fr;
     }
@@ -639,6 +639,7 @@ tbody tr:nth-child(3) {
 .soccer-field {
     width: 100%;
     max-width: 440px;
+    min-width: 400px; /* Force minimum width to prevent login/prediction layout toggling from shrinking the field */
     aspect-ratio: 2 / 3; /* Symmetric layout ratio */
     background-color: #38a169; /* Soccer field green */
     border: 3px solid rgba(255, 255, 255, 0.8);
