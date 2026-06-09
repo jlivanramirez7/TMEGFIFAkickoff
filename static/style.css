@@ -606,4 +606,17 @@ tbody tr:nth-child(3) {
     }
 }
 
+/* Admin Status Dropdown styling */
+#admin-status {
+    width: 100%;
+    max-width: 250px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    font-size: 0.95rem;
+    background-color: white;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
 
