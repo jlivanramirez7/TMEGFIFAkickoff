@@ -13,47 +13,79 @@
     </header>
 
     <main class="container">
-        <!-- Left Column: Starting Lineups Field -->
-        <section class="field-panel card">
-            <h2>Starting Lineups</h2>
-            <div class="field-container">
-                <div class="soccer-field">
-                    <!-- Center Circle & Line -->
-                    <div class="field-center-line"></div>
-                    <div class="field-center-circle"></div>
-                    
-                    <!-- Penalty Areas -->
-                    <div class="field-penalty-area top"></div>
-                    <div class="field-penalty-area bottom"></div>
-                    
-                    <!-- Goal Areas -->
-                    <div class="field-goal-area top"></div>
-                    <div class="field-goal-area bottom"></div>
-                    
-                    <!-- Players container populated dynamically -->
-                    <div id="field-players-container"></div>
+        <!-- Left Column: Starting Lineups Field & Venue Info -->
+        <div class="left-column-wrapper">
+            <section class="field-panel card">
+                <h2>Starting Lineups</h2>
+                <div class="field-container">
+                    <div class="soccer-field">
+                        <!-- Center Circle & Line -->
+                        <div class="field-center-line"></div>
+                        <div class="field-center-circle"></div>
+                        
+                        <!-- Penalty Areas -->
+                        <div class="field-penalty-area top"></div>
+                        <div class="field-penalty-area bottom"></div>
+                        
+                        <!-- Goal Areas -->
+                        <div class="field-goal-area top"></div>
+                        <div class="field-goal-area bottom"></div>
+                        
+                        <!-- Players container populated dynamically -->
+                        <div id="field-players-container"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="field-legend">
-                <div class="legend-item"><span class="legend-dot mx-dot"></span> 🇲🇽 Mexico (Starters)</div>
-                <div class="legend-item"><span class="legend-dot sa-dot"></span> 🇿🇦 South Africa (Starters)</div>
-            </div>
-        </section>
+                <div class="field-legend">
+                    <div class="legend-item"><span class="legend-dot mx-dot"></span> 🇲🇽 Mexico (Starters)</div>
+                    <div class="legend-item"><span class="legend-dot sa-dot"></span> 🇿🇦 South Africa (Starters)</div>
+                </div>
+            </section>
+            
+            <!-- Stadium Info Card -->
+            <section class="stadium-panel card">
+                <h2>🏟️ Match Venue: Estadio Azteca</h2>
+                <div class="stadium-map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3766.4526685847426!2d-99.15286522394017!3d19.30292418195864!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85ce00171ea7c677%3A0xd6ee7081702f37a5!2sEstadio%20Azteca!5e0!3m2!1sen!2sus!4v1717900000000!5m2!1sen!2sus" 
+                        width="100%" 
+                        height="200" 
+                        style="border:0; border-radius: 6px;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                <div class="stadium-facts">
+                    <ul class="facts-list">
+                        <li>📍 <strong>Location:</strong> Mexico City, Mexico</li>
+                        <li>📅 <strong>Opened:</strong> 1966</li>
+                        <li>👥 <strong>Capacity:</strong> 87,523</li>
+                        <li>🏔️ <strong>Altitude:</strong> 2,200m (7,200ft) above sea level</li>
+                        <li>🌟 <strong>History:</strong> The first stadium to host 3 World Cup opening matches (1970, 1986, 2026). Venue of Maradona's legendary 'Hand of God' goal.</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
 
         <!-- Left Side: Interactive Area (Login / Predictions) -->
         <section class="interactive-panel">
             
             <!-- How to Win & Rules Card -->
-            <div class="card rules-card">
-                <h2>How to Win & Point Rules</h2>
-                <p class="rules-intro">Predict the events of Mexico vs. South Africa to climb the leaderboard! Points are distributed as follows:</p>
-                <ul class="rules-list">
-                    <li>🎯 <strong>Goals Earned per Half:</strong> <strong>+10 points</strong> for each correctly predicted half score segment (Mexico 1st half, South Africa 1st half, Mexico 2nd half, South Africa 2nd half). <em>(Up to 40 pts)</em></li>
-                    <li>🏆 <strong>Final Score:</strong> <strong>+10 points</strong> for each correctly predicted team final score (Mexico Final, South Africa Final). <em>(Up to 20 pts)</em></li>
-                    <li>⚽ <strong>Goal Scorers:</strong> <strong>+20 points</strong> for each correct prediction, but with a <strong>-10 points penalty</strong> for each player you predict will score who does not score. Choose wisely!</li>
-                    <li>🛡️ <strong>Goalie Saves:</strong> <strong>+5 points</strong> for each goalkeeper whose exact number of saves you predict correctly.</li>
-                </ul>
-                <p class="rules-lock">⚠️ Predictions lock on <strong>Thursday, June 11, 2026, at 3:00 PM EDT</strong>. You can update your predictions as many times as you want before then!</p>
+            <div class="card rules-card collapsed" id="rules-card">
+                <div class="rules-header" id="rules-toggle">
+                    <h2>How to Win & Point Rules</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="rules-content" id="rules-content">
+                    <p class="rules-intro">Predict the events of Mexico vs. South Africa to climb the leaderboard! Points are distributed as follows:</p>
+                    <ul class="rules-list">
+                        <li>🎯 <strong>Goals Earned per Half:</strong> <strong>+10 points</strong> for each correctly predicted half score segment (Mexico 1st half, South Africa 1st half, Mexico 2nd half, South Africa 2nd half). <em>(Up to 40 pts)</em></li>
+                        <li>🏆 <strong>Final Score:</strong> <strong>+10 points</strong> for each correctly predicted team final score (Mexico Final, South Africa Final). <em>(Up to 20 pts)</em></li>
+                        <li>⚽ <strong>Goal Scorers:</strong> <strong>+20 points</strong> for each correct prediction, but with a <strong>-10 points penalty</strong> for each player you predict will score who does not score. Choose wisely!</li>
+                        <li>🛡️ <strong>Goalie Saves:</strong> <strong>+5 points</strong> for each goalkeeper whose exact number of saves you predict correctly.</li>
+                    </ul>
+                    <p class="rules-lock">⚠️ Predictions lock on <strong>Thursday, June 11, 2026, at 3:00 PM EDT</strong>. You can update your predictions as many times as you want before then!</p>
+                </div>
             </div>
             
             <!-- Login View -->

@@ -668,6 +668,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${parts[0].charAt(0)}. ${parts[parts.length - 1]}`;
     }
 
+    // --- Collapsible Rules Toggle ---
+    const rulesToggle = document.getElementById("rules-toggle");
+    const rulesCard = document.getElementById("rules-card");
+    const rulesIcon = document.querySelector("#rules-toggle .toggle-icon");
+
+    if (rulesToggle && rulesCard) {
+        rulesToggle.addEventListener("click", () => {
+            const isCollapsed = rulesCard.classList.toggle("collapsed");
+            rulesIcon.textContent = isCollapsed ? "▼" : "▲";
+        });
+    }
+
     // --- App Init ---
     initAuth();
     updateLeaderboard();
