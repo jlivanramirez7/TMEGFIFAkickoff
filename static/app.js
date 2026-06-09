@@ -234,6 +234,9 @@ document.addEventListener("DOMContentLoaded", () => {
             
             buildGoaliesList(rosters.Mexico.Goalies, mxGoaliesList, "mx_goalie");
             buildGoaliesList(rosters["South Africa"].Goalies, saGoaliesList, "sa_goalie");
+            
+            // Draw starting lineups on the soccer field graphic
+            renderStartingLineupsOnField(rosters);
         } catch (err) {
             console.error("Failed to load rosters:", err);
         }
@@ -568,6 +571,102 @@ document.addEventListener("DOMContentLoaded", () => {
             modal.classList.add("hidden");
         }
     });
+
+    // --- Soccer Field Lineup Rendering Logic ---
+
+    function renderStartingLineupsOnField(rosters) {
+        const container = document.getElementById("field-players-container");
+        if (!container) return;
+        container.innerHTML = "";
+        
+        const MEXICO_COORDS = {
+            goalies: [{ x: 50, y: 92 }],
+            defenders: [{ x: 15, y: 81 }, { x: 38, y: 83 }, { x: 62, y: 83 }, { x: 85, y: 81 }],
+            midfielders: [{ x: 23, y: 67 }, { x: 50, y: 72 }, { x: 77, y: 67 }],
+            forwards: [{ x: 18, y: 56 }, { x: 50, y: 55 }, { x: 82, y: 56 }]
+        };
+
+        const SA_COORDS = {
+            goalies: [{ x: 50, y: 8 }],
+            defenders: [{ x: 15, y: 19 }, { x: 38, y: 17 }, { x: 62, y: 17 }, { x: 85, y: 19 }],
+            midfielders: [{ x: 23, y: 33 }, { x: 50, y: 28 }, { x: 77, y: 33 }],
+            forwards: [{ x: 18, y: 44 }, { x: 50, y: 45 }, { x: 82, y: 44 }]
+        };
+
+        // Render Mexico (bottom half)
+        const mxStarters = getStartersCategorized(rosters.Mexico);
+        renderTeamOnField(mxStarters, MEXICO_COORDS, "mx-dot", container);
+
+        // Render South Africa (top half)
+        const saStarters = getStartersCategorized(rosters["South Africa"]);
+        renderTeamOnField(saStarters, SA_COORDS, "sa-dot", container);
+    }
+
+    function getStartersCategorized(teamRoster) {
+        const starters = {
+            goalies: [],
+            defenders: [],
+            midfielders: [],
+            forwards: []
+        };
+
+        // Goalies
+        teamRoster.Goalies.forEach(g => {
+            if (g.is_starter) starters.goalies.push(g.name);
+        });
+
+        // Outfield
+        teamRoster.Outfield.forEach(p => {
+            if (p.is_starter) {
+                const pos = p.position.toLowerCase();
+                if (pos.includes("def")) {
+                    starters.defenders.push(p.name);
+                } else if (pos.includes("mid")) {
+                    starters.midfielders.push(p.name);
+                } else if (pos.includes("for") || pos.includes("striker") || pos.includes("wing")) {
+                    starters.forwards.push(p.name);
+                }
+            }
+        });
+
+        return starters;
+    }
+
+    function renderTeamOnField(starters, coords, dotClass, container) {
+        const placeGroup = (players, positionsCoords) => {
+            players.forEach((player, idx) => {
+                const coord = positionsCoords[idx];
+                if (!coord) return; // Safeguard if roster structure changes
+
+                const playerEl = document.createElement("div");
+                playerEl.className = "field-player";
+                playerEl.style.left = `${coord.x}%`;
+                playerEl.style.top = `${coord.y}%`;
+
+                const displayName = getFieldDisplayName(player);
+
+                playerEl.innerHTML = `
+                    <div class="player-dot ${dotClass}" title="${player}"></div>
+                    <div class="player-name-label">${displayName}</div>
+                `;
+                container.appendChild(playerEl);
+            });
+        };
+
+        placeGroup(starters.goalies, coords.goalies);
+        placeGroup(starters.defenders, coords.defenders);
+        placeGroup(starters.midfielders, coords.midfielders);
+        placeGroup(starters.forwards, coords.forwards);
+    }
+
+    function getFieldDisplayName(fullName) {
+        const parts = fullName.split(" ");
+        if (parts.length === 1) return fullName;
+        if (parts.length === 2) {
+            return `${parts[0].charAt(0)}. ${parts[1]}`;
+        }
+        return `${parts[0].charAt(0)}. ${parts[parts.length - 1]}`;
+    }
 
     // --- App Init ---
     initAuth();
