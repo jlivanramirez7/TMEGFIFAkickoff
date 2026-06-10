@@ -252,16 +252,17 @@ legend {
 
 .half-box {
     background-color: #f8f9fa;
-    padding: 15px;
+    padding: 12px 8px;
     border-radius: 6px;
     border: 1px solid #e9ecef;
 }
 
 .half-box h3 {
-    font-size: 1rem;
-    margin-bottom: 12px;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
     border-bottom: 1px solid #dee2e6;
     padding-bottom: 5px;
+    text-align: center;
 }
 
 .score-input-group {
@@ -278,6 +279,28 @@ legend {
 .score-input-group input {
     width: 70px;
     text-align: center;
+}
+
+/* Vertical stacking overrides for scores inside the halves-grid to fit 550px cards */
+.half-box .score-input-group {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.half-box .score-input-group label {
+    width: auto;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.half-box .score-input-group input {
+    width: 100%;
+    max-width: 55px;
+    padding: 5px 8px;
+    font-size: 0.95rem;
 }
 
 /* Rosters & Lists */
