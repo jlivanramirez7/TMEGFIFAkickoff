@@ -89,6 +89,11 @@ header h1 {
         justify-self: center !important;
         max-width: 600px !important;
     }
+    
+    .leaderboard-panel {
+        position: static !important;
+        max-height: none !important;
+    }
 }
 
 /* Card Styles */
@@ -381,6 +386,7 @@ legend {
 
 .table-container {
     overflow-x: auto;
+    overflow-y: auto;
 }
 
 table {
@@ -914,6 +920,22 @@ tbody tr:nth-child(3) {
     justify-self: start;
     width: 100%;
     max-width: 380px;
+    position: sticky;
+    top: 30px;
+    max-height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+}
+
+.leaderboard-panel .table-container {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+#leaderboard-table th,
+#leaderboard-table td {
+    padding: 8px 12px;
+    font-size: 0.9rem;
 }
 
 /* User Form Specific layout adjustments to fit 550px width */
