@@ -200,35 +200,45 @@ def calculate_score(prediction, game_state):
         return 0
         
     score = 0
+    status = game_state.get("status", "live")
     
-    # 1. Goals Earned per Half (10 pts each, ONLY if that half is marked final by the admin)
-    if game_state.get("first_half_final", False):
-        for key in ["mexico_1st", "south_africa_1st"]:
-            user_val = prediction.get("scores", {}).get(key)
-            actual_val = game_state.get("scores", {}).get(key)
-            if user_val is not None and actual_val is not None:
-                if int(user_val) == int(actual_val):
-                    score += 10
-                    
-    if game_state.get("second_half_final", False):
+    # Extract actual scores
+    scores = game_state.get("scores", {})
+    mx_1st = int(scores.get("mexico_1st", 0))
+    sa_1st = int(scores.get("south_africa_1st", 0))
+    mx_2nd = int(scores.get("mexico_2nd", 0))
+    sa_2nd = int(scores.get("south_africa_2nd", 0))
+    
+    # 1. Goals Earned per Half (10 pts each)
+    # 1st Half: Always evaluate if the match is live or final
+    for key in ["mexico_1st", "south_africa_1st"]:
+        user_val = prediction.get("scores", {}).get(key)
+        actual_val = scores.get(key)
+        if user_val is not None and actual_val is not None:
+            if int(user_val) == int(actual_val):
+                score += 10
+                
+    # 2nd Half: Evaluate if final, or if 2nd half has active scoring data (non-zero goals recorded)
+    has_2nd_half_started = (mx_2nd > 0 or sa_2nd > 0 or status == "final")
+    if has_2nd_half_started:
         for key in ["mexico_2nd", "south_africa_2nd"]:
             user_val = prediction.get("scores", {}).get(key)
-            actual_val = game_state.get("scores", {}).get(key)
+            actual_val = scores.get(key)
             if user_val is not None and actual_val is not None:
                 if int(user_val) == int(actual_val):
                     score += 10
 
-    # 1.5 Final Score (10 pts each, ONLY if final score is marked final by the admin)
-    if game_state.get("final_score_final", False):
-        for key in ["mexico_final", "south_africa_final"]:
-            user_val = prediction.get("scores", {}).get(key)
-            actual_val = game_state.get("scores", {}).get(key)
-            if user_val is not None and actual_val is not None:
-                if int(user_val) == int(actual_val):
-                    score += 10
+    # 1.5 Final Score (10 pts each)
+    # Always evaluate live based on current total final scores
+    for key in ["mexico_final", "south_africa_final"]:
+        user_val = prediction.get("scores", {}).get(key)
+        actual_val = scores.get(key)
+        if user_val is not None and actual_val is not None:
+            if int(user_val) == int(actual_val):
+                score += 10
                 
     # 2. Goal Scorers (20 pts for correct, -10 pts penalty for incorrect guesses)
-    # Calculated immediately during "live" match.
+    # Evaluated live during match
     user_scorers = set(prediction.get("goal_scorers", []))
     actual_scorers = set(game_state.get("goal_scorers", []))
     
@@ -238,16 +248,18 @@ def calculate_score(prediction, game_state):
     score += len(correct_scorers) * 20
     score -= len(incorrect_scorers) * 10
     
-    # 3. Goalie Saves (5 pts each, ONLY when saves are marked final at the end of the match)
-    if game_state.get("saves_final", False):
+    # 3. Goalie Saves (5 pts each)
+    # Evaluate goalie saves if status is final, or if any goalie save is recorded as non-zero
+    actual_saves = game_state.get("goalie_saves", {})
+    has_saves = any(int(val) > 0 for val in actual_saves.values()) or status == "final"
+    if has_saves:
         user_saves = prediction.get("goalie_saves", {})
-        actual_saves = game_state.get("goalie_saves", {})
         for goalie, actual_val in actual_saves.items():
             user_val = user_saves.get(goalie)
             if user_val is not None and actual_val is not None:
                 if int(user_val) == int(actual_val):
                     score += 5
-                
+                    
     return max(0, score)
 
 
