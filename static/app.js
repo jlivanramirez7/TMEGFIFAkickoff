@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formSuccess = document.getElementById("form-success");
     
     const leaderboardTableBody = document.querySelector("#leaderboard-table tbody");
+    const participantCountEl = document.getElementById("participant-count");
 
     // Dynamic Lists Containers
     const mxScorersList = document.getElementById("mexico-scorers-list");
@@ -419,6 +420,12 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(res => res.json())
             .then(data => {
                 leaderboardTableBody.innerHTML = "";
+                
+                // Update participant count display
+                if (participantCountEl) {
+                    participantCountEl.textContent = `(${data.length} Participant${data.length === 1 ? '' : 's'})`;
+                }
+
                 if (data.length === 0) {
                     leaderboardTableBody.innerHTML = `
                         <tr>
